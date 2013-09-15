@@ -53,7 +53,7 @@ getBasisData <- function(report_date='2013-09-14') {
 }
 
 
-drawSmoothLine <- function (x, y, col, lwd=1) {
+drawSmoothLine <- function (x, y, col=NULL, lwd=1) {
   x.clean <- x[!is.na(y)]
   y.clean <- y[!is.na(y)]
 
@@ -68,6 +68,20 @@ basis.data <- rbind(
   getBasisData('2013-09-13'), 
   getBasisData('2013-09-14'))
 
+plot(x=NULL, xlim=c(0, 24), ylim=c(0, 200))
+
+colnum = 1
+for(d in c('2013-09-12', '2013-09-13', '2013-09-14')) {
+  start <- as.POSIXct(d)
+  end <- start + 60*60*24
+  
+  ii <- (basis.data$timestamp > start) & (basis.data$timestamp < end)
+  ts <- difftime(basis.data$timestamp[ii], start, units='hours')
+  hr <- basis.data$heartrate[ii]
+  
+  drawSmoothLine(y=hr, x=ts, col=colnum)
+  colnum <- colnum + 1
+}
 
 plot(y=basis.data$heartrate, x=basis.data$timestamp, type='p', pch=20, col='grey')
 drawSmoothLine(x=basis.data$timestamp, y=basis.data$heartrate, col='red', lwd=2)
