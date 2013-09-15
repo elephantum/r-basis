@@ -4,7 +4,7 @@ library('RCurl')
 getBasisData <- function(report_date='2013-09-14') {
   print(sprintf('Downloading data for date %s', report_date))
   
-  user_id <- readLines('user_id.txt')
+  user_id <- readLines('basis_user_id.txt')
   
   #          '&start_offset=-10800',
   #          '&end_offset=10800',
