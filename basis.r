@@ -50,25 +50,16 @@ getBasisData <- function(report_date='2013-09-14') {
   return(basis.data)
 }
 
-basis.data.13 <- getBasisData('2013-09-13')
-basis.data.14 <- getBasisData('2013-09-14')
+basis.data <- rbind(
+  getBasisData('2013-09-12'), 
+  getBasisData('2013-09-13'), 
+  getBasisData('2013-09-14'))
 
-basis.data <- rbind(basis.data.13, basis.data.14)
 
+hr.ts <- basis.data$timestamp[!is.na(basis.data$heartrate)]
+hr <- basis.data$heartrate[!is.na(basis.data$heartrate)]
 
-ts <- basis.data.13$timestamp - basis.data.13$timestamp[1]
+spl <- smooth.spline(x=hr.ts, y=hr)
 
-hr.ts.13 <- basis.data.13$timestamp[!is.na(basis.data.13$heartrate)] - basis.data.13$timestamp[1]
-hr.13 <- basis.data.13$heartrate[!is.na(basis.data.13$heartrate)]
-
-spl.13 <- smooth.spline(x=hr.ts.13, y=hr.13)
-
-hr.ts.14 <- basis.data.14$timestamp[!is.na(basis.data.14$heartrate)] - basis.data.14$timestamp[1]
-hr.14 <- basis.data.14$heartrate[!is.na(basis.data.14$heartrate)]
-
-spl.14 <- smooth.spline(x=hr.ts.14, y=hr.14)
-
-plot(x=hr.ts.13, y=hr.13, col='grey')
-lines(x=hr.ts.14, y=hr.14, col='grey', type='p')
-lines(spl.13, col='red')
-lines(spl.14, col='blue')
+plot(y=basis.data$heartrate, x=basis.data$timestamp, type='p', col='grey', pch='*')
+lines(spl, col='red')
