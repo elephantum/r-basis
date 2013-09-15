@@ -2,6 +2,8 @@ library('rjson')
 library('RCurl')
 
 getBasisData <- function(report_date='2013-09-14') {
+  print(sprintf('Downloading data for date %s', report_date))
+  
   user_id <- readLines('user_id.txt')
   
   #          '&start_offset=-10800',
@@ -50,16 +52,23 @@ getBasisData <- function(report_date='2013-09-14') {
   return(basis.data)
 }
 
+
+drawSmoothLine <- function (x, y, col) {
+  x.clean <- x[!is.na(y)]
+  y.clean <- y[!is.na(y)]
+
+  spl <- smooth.spline(x=x.clean, y=y.clean)
+  lines(spl, col=col)
+}
+
+
 basis.data <- rbind(
+  getBasisData('2013-09-10'), 
+  getBasisData('2013-09-11'), 
   getBasisData('2013-09-12'), 
   getBasisData('2013-09-13'), 
   getBasisData('2013-09-14'))
 
 
-hr.ts <- basis.data$timestamp[!is.na(basis.data$heartrate)]
-hr <- basis.data$heartrate[!is.na(basis.data$heartrate)]
-
-spl <- smooth.spline(x=hr.ts, y=hr)
-
-plot(y=basis.data$heartrate, x=basis.data$timestamp, type='p', col='grey', pch='*')
-lines(spl, col='red')
+plot(y=basis.data$heartrate, x=basis.data$timestamp, type='p', col='grey')
+drawSmoothLine(x=basis.data$timestamp, y=basis.data$heartrate, col='red')
