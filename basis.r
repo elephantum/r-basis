@@ -53,22 +53,21 @@ getBasisData <- function(report_date='2013-09-14') {
 }
 
 
-drawSmoothLine <- function (x, y, col) {
+drawSmoothLine <- function (x, y, col, lwd=1) {
   x.clean <- x[!is.na(y)]
   y.clean <- y[!is.na(y)]
 
   spl <- smooth.spline(x=x.clean, y=y.clean)
-  lines(spl, col=col)
+  lines(spl, col=col, lwd=lwd)
 }
 
 
 basis.data <- rbind(
-  getBasisData('2013-09-10'), 
   getBasisData('2013-09-11'), 
   getBasisData('2013-09-12'), 
   getBasisData('2013-09-13'), 
   getBasisData('2013-09-14'))
 
 
-plot(y=basis.data$heartrate, x=basis.data$timestamp, type='p', col='grey')
-drawSmoothLine(x=basis.data$timestamp, y=basis.data$heartrate, col='red')
+plot(y=basis.data$heartrate, x=basis.data$timestamp, type='p', pch=20, col='grey')
+drawSmoothLine(x=basis.data$timestamp, y=basis.data$heartrate, col='red', lwd=2)
