@@ -66,12 +66,18 @@ basis.data <- rbind(
   getBasisData('2013-09-11'), 
   getBasisData('2013-09-12'), 
   getBasisData('2013-09-13'), 
-  getBasisData('2013-09-14'))
+  getBasisData('2013-09-14'),
+  getBasisData('2013-09-15'))
 
-plot(x=NULL, xlim=c(0, 24), ylim=c(0, 200))
+plot(
+  x=NULL, 
+  xlim=c(0, 24), 
+  xlab='hour',
+  ylim=c(0, 200),
+  ylab='hr')
 
 colnum = 1
-for(d in c('2013-09-12', '2013-09-13', '2013-09-14')) {
+for(d in c('2013-09-12', '2013-09-13', '2013-09-14', '2013-09-15')) {
   start <- as.POSIXct(d)
   end <- start + 60*60*24
   
@@ -82,6 +88,3 @@ for(d in c('2013-09-12', '2013-09-13', '2013-09-14')) {
   drawSmoothLine(y=hr, x=ts, col=colnum)
   colnum <- colnum + 1
 }
-
-plot(y=basis.data$heartrate, x=basis.data$timestamp, type='p', pch=20, col='grey')
-drawSmoothLine(x=basis.data$timestamp, y=basis.data$heartrate, col='red', lwd=2)
