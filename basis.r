@@ -1,12 +1,27 @@
 library('rjson')
 library('RCurl')
 
-getBasisData <- function(date='2013-09-14') {
+getBasisData <- function(report_date='2013-09-14') {
   user_id <- readLines('user_id.txt')
   
-  basis.url <- sprintf('https://app.mybasis.com/api/v1/chart/%s.json?summary=true&interval=60&units=ms&start_date=%s&start_offset=-10800&end_offset=10800&heartrate=true&steps=true&calories=true&gsr=true&skin_temp=true&air_temp=true&bodystates=true',
-                 user_id, 
-                 date)
+  #          '&start_offset=-10800',
+  #          '&end_offset=10800',
+
+  basis.url <- sprintf(
+    paste0('https://app.mybasis.com/api/v1/chart/%s.json',
+          '?summary=true',
+          '&interval=60',
+          '&units=ms',
+          '&start_date=%s',
+          '&heartrate=true',
+          '&steps=true',
+          '&calories=true',
+          '&gsr=true',
+          '&skin_temp=true',
+          '&air_temp=true',
+          '&bodystates=true'),
+    user_id, 
+    report_date)
   
   basis.data.string <- getURL(basis.url)
   
@@ -18,9 +33,12 @@ getBasisData <- function(date='2013-09-14') {
     else 
       return(X[1])
   }
-  
+
   basis.data <- data.frame(
-    timestamp=seq(from=basis.data.json$starttime, to=basis.data.json$endtime, by=basis.data.json$interval),
+    timestamp=seq(
+      from=as.POSIXct(basis.data.json$starttime, origin='1970-01-01'), 
+      to=as.POSIXct(basis.data.json$endtime, origin='1970-01-01'), 
+      by=basis.data.json$interval),
     heartrate=sapply(X=basis.data.json$metrics$heartrate$values, FUN=NAifNULL),
     skin_temp=sapply(X=basis.data.json$metrics$skin_temp$values, FUN=NAifNULL),
     air_temp=sapply(X=basis.data.json$metrics$air_temp$values, FUN=NAifNULL),
@@ -34,6 +52,9 @@ getBasisData <- function(date='2013-09-14') {
 
 basis.data.13 <- getBasisData('2013-09-13')
 basis.data.14 <- getBasisData('2013-09-14')
+
+basis.data <- rbind(basis.data.13, basis.data.14)
+
 
 ts <- basis.data.13$timestamp - basis.data.13$timestamp[1]
 
