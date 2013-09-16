@@ -61,13 +61,18 @@ drawSmoothLine <- function (x, y, col=NULL, lwd=1) {
   lines(spl, col=col, lwd=lwd)
 }
 
+t <- lapply(X=c('a', 'b', 'c'), FUN=function(X){return(paste0('+', X))})
 
-basis.data <- rbind(
-  getBasisData('2013-09-11'), 
-  getBasisData('2013-09-12'), 
-  getBasisData('2013-09-13'), 
-  getBasisData('2013-09-14'),
-  getBasisData('2013-09-15'))
+
+basis.data.by.date <- list()
+basis.data.by.date[['2013-09-11']] <- getBasisData('2013-09-11')
+basis.data.by.date[['2013-09-12']] <- getBasisData('2013-09-12')
+basis.data.by.date[['2013-09-13']] <- getBasisData('2013-09-13')
+basis.data.by.date[['2013-09-14']] <- getBasisData('2013-09-14')
+basis.data.by.date[['2013-09-15']] <- getBasisData('2013-09-15')
+basis.data.by.date[['2013-09-16']] <- getBasisData('2013-09-16')
+
+basis.data <- Reduce(x=basis.data.by.date, f=rbind)
 
 plot(
   x=NULL, 
@@ -77,7 +82,15 @@ plot(
   ylab='hr')
 
 colnum = 1
-for(d in c('2013-09-12', '2013-09-13', '2013-09-14', '2013-09-15')) {
+for(d in c(
+  '2013-09-11', 
+  '2013-09-12', 
+  '2013-09-13', 
+  '2013-09-14', 
+  '2013-09-15',
+  '2013-09-16'
+)
+    ) {
   start <- as.POSIXct(d)
   end <- start + 60*60*24
   
