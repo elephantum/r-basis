@@ -71,6 +71,8 @@ basis.data.by.date[['2013-09-13']] <- getBasisData('2013-09-13')
 basis.data.by.date[['2013-09-14']] <- getBasisData('2013-09-14')
 basis.data.by.date[['2013-09-15']] <- getBasisData('2013-09-15')
 basis.data.by.date[['2013-09-16']] <- getBasisData('2013-09-16')
+basis.data.by.date[['2013-09-17']] <- getBasisData('2013-09-17')
+basis.data.by.date[['2013-09-18']] <- getBasisData('2013-09-18')
 
 basis.data <- Reduce(x=basis.data.by.date, f=rbind)
 
@@ -88,7 +90,8 @@ for(d in c(
   '2013-09-13', 
   '2013-09-14', 
   '2013-09-15',
-  '2013-09-16'
+  '2013-09-16',
+  '2013-09-17'
 )
     ) {
   start <- as.POSIXct(d)
