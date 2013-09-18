@@ -1,7 +1,7 @@
-library('rjson')
-library('RCurl')
-
 getBasisData <- function(report_date='2013-09-14') {
+  library('rjson')
+  library('RCurl')
+
   print(sprintf('Downloading data for date %s', report_date))
   
   user_id <- readLines('basis_user_id.txt')
