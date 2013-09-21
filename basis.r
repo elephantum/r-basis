@@ -53,14 +53,6 @@ getBasisData <- function(report_date='2013-09-14') {
 }
 
 
-drawSmoothLine <- function (x, y, col=NULL, lwd=1) {
-  x.clean <- x[!is.na(y)]
-  y.clean <- y[!is.na(y)]
-
-  spl <- smooth.spline(x=x.clean, y=y.clean)
-  lines(spl, col=col, lwd=lwd)
-}
-
 t <- lapply(X=c('a', 'b', 'c'), FUN=function(X){return(paste0('+', X))})
 
 
@@ -73,8 +65,31 @@ basis.data.by.date[['2013-09-15']] <- getBasisData('2013-09-15')
 basis.data.by.date[['2013-09-16']] <- getBasisData('2013-09-16')
 basis.data.by.date[['2013-09-17']] <- getBasisData('2013-09-17')
 basis.data.by.date[['2013-09-18']] <- getBasisData('2013-09-18')
+basis.data.by.date[['2013-09-19']] <- getBasisData('2013-09-19')
+basis.data.by.date[['2013-09-20']] <- getBasisData('2013-09-20')
+basis.data.by.date[['2013-09-21']] <- getBasisData('2013-09-21')
 
 basis.data <- Reduce(x=basis.data.by.date, f=rbind)
+basis.data$start <- as.POSIXct(trunc(basis.data$timestamp, 'days'))
+
+drawSmoothLine <- function (x, y, col=NULL, lwd=1) {
+  x.clean <- x[!is.na(y)]
+  y.clean <- y[!is.na(y)]
+  
+  if(length(y.clean) > 0) {
+    spl <- smooth.spline(x=x.clean, y=y.clean)
+    lines(spl, col=col, lwd=lwd)
+  }
+}
+
+colnum = 1
+drawDay <- function(d) {
+  ts <- difftime(d$timestamp, d$start, units='hours')
+  hr <- d$heartrate
+  
+  drawSmoothLine(y=hr, x=ts, col=colnum)
+  colnum <<- colnum + 1
+}
 
 plot(
   x=NULL, 
@@ -83,24 +98,7 @@ plot(
   ylim=c(0, 200),
   ylab='hr')
 
-colnum = 1
-for(d in c(
-  '2013-09-11', 
-  '2013-09-12', 
-  '2013-09-13', 
-  '2013-09-14', 
-  '2013-09-15',
-  '2013-09-16',
-  '2013-09-17'
-)
-    ) {
-  start <- as.POSIXct(d)
-  end <- start + 60*60*24
-  
-  ii <- (basis.data$timestamp > start) & (basis.data$timestamp < end)
-  ts <- difftime(basis.data$timestamp[ii], start, units='hours')
-  hr <- basis.data$heartrate[ii]
-  
-  drawSmoothLine(y=hr, x=ts, col=colnum)
-  colnum <- colnum + 1
-}
+tapply(
+  X=1:nrow(basis.data),
+  INDEX=basis.data$start,
+  FUN=function(x)drawDay(basis.data[x,]))
