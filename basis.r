@@ -1,7 +1,8 @@
-getBasisData <- function(report_date='2013-09-14') {
-  library('rjson')
-  library('RCurl')
+library('rjson')
+library('RCurl')
+library('reshape')
 
+getBasisData <- function(report_date='2013-09-14') {
   print(sprintf('Downloading data for date %s', report_date))
   
   user_id <- readLines('basis_user_id.txt')
@@ -71,7 +72,10 @@ basis.data.by.date[['2013-09-21']] <- getBasisData('2013-09-21')
 
 basis.data <- Reduce(x=basis.data.by.date, f=rbind)
 basis.data$start <- as.POSIXct(trunc(basis.data$timestamp, 'days'))
+basis.data$hour <- as.POSIXlt(basis.data$timestamp)$hour
 
+drawLines <- function() {
+  
 drawSmoothLine <- function (x, y, col=NULL, lwd=1) {
   x.clean <- x[!is.na(y)]
   y.clean <- y[!is.na(y)]
@@ -102,3 +106,29 @@ tapply(
   X=1:nrow(basis.data),
   INDEX=basis.data$start,
   FUN=function(x)drawDay(basis.data[x,]))
+}
+
+drawHeatmap <- function(){
+
+hr_by_date_hour <- aggregate(
+  basis.data$heartrate, by=list(date=basis.data$start, hour=basis.data$hour), 
+  FUN=mean,
+  na.rm=TRUE)
+
+hr_by_date_hour.matrix <- as.matrix(cast(hr_by_date_hour, hour ~ date))
+
+image(z=hr_by_date_hour.matrix, axes=FALSE)
+
+x.names <- rownames(hr_by_date_hour.matrix)
+axis(
+  1, 
+  at=seq(from=0, to=1, along.with=x.names), 
+  labels=x.names)
+
+y.names <- colnames(hr_by_date_hour.matrix)
+axis(
+  2, 
+  at=seq(from=0, to=1, along.with=y.names), 
+  labels=y.names)
+
+}
