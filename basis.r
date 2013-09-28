@@ -2,9 +2,7 @@ library('rjson')
 library('RCurl')
 library('reshape')
 
-getBasisData <- function(report_date='2013-09-14') {
-  print(sprintf('Downloading data for date %s', report_date))
-  
+getBasisData <- function(report_date='2013-09-14') {  
   user_id <- readLines('basis_user_id.txt')
   
   #          '&start_offset=-10800',
@@ -25,6 +23,8 @@ getBasisData <- function(report_date='2013-09-14') {
           '&bodystates=true'),
     user_id, 
     report_date)
+
+  print(sprintf('Downloading data for date %s: %s', report_date, basis.url))
   
   basis.data.string <- getURL(basis.url)
   
@@ -39,8 +39,8 @@ getBasisData <- function(report_date='2013-09-14') {
 
   basis.data <- data.frame(
     timestamp=seq(
-      from=as.POSIXct(basis.data.json$starttime, origin='1970-01-01'), 
-      to=as.POSIXct(basis.data.json$endtime, origin='1970-01-01'), 
+      from=as.POSIXct(as.POSIXlt(basis.data.json$starttime, origin='1970-01-01', tz='Europe/Moscow')), 
+      to=as.POSIXct(as.POSIXlt(basis.data.json$endtime, origin='1970-01-01', tz='Europe/Moscow')), 
       by=basis.data.json$interval),
     heartrate=sapply(X=basis.data.json$metrics$heartrate$values, FUN=NAifNULL),
     skin_temp=sapply(X=basis.data.json$metrics$skin_temp$values, FUN=NAifNULL),
@@ -54,21 +54,27 @@ getBasisData <- function(report_date='2013-09-14') {
 }
 
 
-t <- lapply(X=c('a', 'b', 'c'), FUN=function(X){return(paste0('+', X))})
-
-
 basis.data.by.date <- list()
-basis.data.by.date[['2013-09-11']] <- getBasisData('2013-09-11')
-basis.data.by.date[['2013-09-12']] <- getBasisData('2013-09-12')
-basis.data.by.date[['2013-09-13']] <- getBasisData('2013-09-13')
-basis.data.by.date[['2013-09-14']] <- getBasisData('2013-09-14')
-basis.data.by.date[['2013-09-15']] <- getBasisData('2013-09-15')
-basis.data.by.date[['2013-09-16']] <- getBasisData('2013-09-16')
-basis.data.by.date[['2013-09-17']] <- getBasisData('2013-09-17')
-basis.data.by.date[['2013-09-18']] <- getBasisData('2013-09-18')
-basis.data.by.date[['2013-09-19']] <- getBasisData('2013-09-19')
-basis.data.by.date[['2013-09-20']] <- getBasisData('2013-09-20')
-basis.data.by.date[['2013-09-21']] <- getBasisData('2013-09-21')
+for(i in c(
+  '2013-09-11',
+  '2013-09-12',
+  '2013-09-13',
+  '2013-09-14',
+  '2013-09-15',
+  '2013-09-16',
+  '2013-09-17',
+  '2013-09-18',
+  '2013-09-19',
+  '2013-09-20',
+  '2013-09-21',
+  '2013-09-22',
+  '2013-09-23',
+  '2013-09-24',
+  '2013-09-25',
+  '2013-09-26'
+)) {
+  basis.data.by.date[[i]] <- getBasisData(i)  
+}
 
 basis.data <- Reduce(x=basis.data.by.date, f=rbind)
 basis.data$start <- as.POSIXct(trunc(basis.data$timestamp, 'days'))
